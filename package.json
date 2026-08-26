@@ -1,0 +1,9 @@
+{
+  "name": "daily-landing-pages-bot",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "publish": "node scripts/publish.mjs"
+  }
+}

@@ -1,0 +1,22 @@
+name: Daily Landing Page
+
+on:
+  schedule:
+    # 13:00 UTC every day — edit to taste (cron is always UTC).
+    - cron: '0 13 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate and publish today's landing page
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: node scripts/publish.mjs
