@@ -47,7 +47,7 @@ async function main() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: repoName,
-      description: `Auto-generated single-page landing site — ${topic.name} (React + Tailwind CSS)`,
+      description: `${topic.name} — a single-page landing site (React + Tailwind CSS)`,
       private: false,
       auto_init: false,
     }),

@@ -67,7 +67,7 @@ function renderApp(topic, color) {
       </section>
 
       <footer className="text-center py-8 text-slate-400 text-sm">
-        © ${new Date().getFullYear()} ${topic.brand}. Generated automatically — topic: ${topic.name}.
+        © ${new Date().getFullYear()} ${topic.brand}. All rights reserved.
       </footer>
     </div>
   )
@@ -92,7 +92,7 @@ export function generate() {
   const repoName = `landing-${topic.slug}-${dateStr}`
   const readme = `# ${topic.brand}
 
-Auto-generated single-page landing site (React + Vite + Tailwind CSS) for the topic **${topic.name}**.
+A single-page landing site (React + Vite + Tailwind CSS) for **${topic.name}**.
 
 ## Run locally
 
@@ -100,8 +100,6 @@ Auto-generated single-page landing site (React + Vite + Tailwind CSS) for the to
 npm install
 npm run dev
 \`\`\`
-
-Generated automatically on ${dateStr} by [daily-landing-pages-bot](https://github.com/${process.env.GH_OWNER || ''}/daily-landing-pages-bot).
 `
   fs.writeFileSync(path.join(outDir, 'README.md'), readme)
 
