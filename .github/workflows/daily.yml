@@ -3,15 +3,20 @@ name: Daily Landing Page
 on:
   workflow_dispatch: {}
   schedule:
-    # 13:00 UTC every day — edit to taste (cron is always UTC).
+    # GitHub sometimes drops scheduled runs, so the second slot is a backup. Repeat runs on the same UTC day are no-ops.
     - cron: '0 13 * * *'
+    - cron: '0 20 * * *'
+
+concurrency:
+  group: daily-landing-page
+  cancel-in-progress: false
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
       actions: write
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +29,24 @@ jobs:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: node scripts/publish.mjs
 
-      # GitHub disables scheduled workflows after 60 days without repo commits; re-enabling resets that timer.
+      # Uses the built-in token, so it still lands (and counts toward the streak) if GH_PAT has expired.
+      # The commit is also repo activity, which stops GitHub's 60-day schedule auto-disable.
+      - name: Record today's run
+        if: always()
+        run: |
+          today=$(date -u +%F)
+          if grep -q "^$today" activity.log 2>/dev/null; then
+            echo "Already recorded $today"
+            exit 0
+          fi
+          echo "$today" >> activity.log
+          git add activity.log
+          git -c user.name="${{ github.repository_owner }}" \
+              -c user.email="${{ github.repository_owner_id }}+${{ github.repository_owner }}@users.noreply.github.com" \
+              commit -m "Daily log $today"
+          git pull --rebase origin "${{ github.ref_name }}"
+          git push origin "HEAD:${{ github.ref_name }}"
+
       - name: Keep schedule alive
         if: always()
         env:
