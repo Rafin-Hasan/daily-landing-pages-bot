@@ -184,8 +184,10 @@ async function deployToPages(dir, owner, repoName, identity) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ source: { branch: 'gh-pages', path: '/' } }),
     })
+    // GitHub sometimes answers 500 even though Pages was enabled, so confirm before giving up.
     if (!pages.ok && pages.status !== 409) {
-      throw new Error(`enabling GitHub Pages returned HTTP ${pages.status}: ${await pages.text()}`)
+      const check = await ghRequest(`https://api.github.com/repos/${owner}/${repoName}/pages`)
+      if (!check.ok) throw new Error(`enabling GitHub Pages returned HTTP ${pages.status}: ${await pages.text()}`)
     }
 
     const url = demoUrl(owner, repoName)
