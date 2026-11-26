@@ -1,9 +1,18 @@
 # daily-landing-pages-bot
 
-Every day, this repo's GitHub Actions workflow generates a new single-page
-React + Tailwind CSS landing page for a different fictional business, and
-publishes it to a **brand-new GitHub repo** under your account (e.g.
-`landing-online-fitness-coaching-2026-08-26`).
+Every day, this repo's GitHub Actions workflow does one of two things,
+chosen from the date:
+
+- **~40% of days:** publishes a new single-page React + Tailwind CSS landing
+  page for a fictional business to a **brand-new repo** (e.g.
+  `landing-online-fitness-coaching-2026-08-26`).
+- **Other days:** works on existing `landing-*` repos: redesigns ones still on
+  the old layout, then adds smaller improvements (README sections, license,
+  `.gitignore`).
+
+The number of commits varies from day to day. Every redesigned or new site is
+built and published to GitHub Pages, and the repo's website link points at the
+live demo. Each day's result is logged in `activity.log`.
 
 There's no live AI call involved — content comes from a rotating pool of 30
 topics in [`scripts/topics.mjs`](scripts/topics.mjs) and 12 color themes in
@@ -14,14 +23,16 @@ same theme.
 
 ## How it works
 
-1. `scripts/generate.mjs` picks today's topic + color, copies
-   [`template/`](template/) (a minimal Vite + React + Tailwind app) into
-   `output/`, and renders `output/src/App.jsx` with that topic's copy.
-2. `scripts/publish.mjs` calls the GitHub API to create a new public repo
-   named `landing-<topic-slug>-<date>`, then `git init` + `git push`s the
-   generated site into it.
-3. `.github/workflows/daily.yml` runs step 2 on a daily cron schedule (and
-   can also be triggered manually).
+1. `scripts/site.mjs` renders the page design (`index.html`, `src/App.jsx`,
+   `src/index.css`, `tailwind.config.js`) for a topic and color.
+2. `scripts/generate.mjs` copies [`template/`](template/) (Vite + React
+   config) into `output/` and writes the rendered site into it.
+3. `scripts/improvements.mjs` lists the changes that can be made to an
+   existing repo, one commit each, starting with the redesign.
+4. `scripts/publish.mjs` picks the day's plan, creates or updates repos, and
+   deploys redesigned sites to each repo's `gh-pages` branch.
+5. `.github/workflows/daily.yml` runs it at 13:00 UTC with a 20:00 UTC backup
+   (repeat runs on the same day do nothing), then commits `activity.log`.
 
 ## One-time setup
 
@@ -71,7 +82,7 @@ same theme.
   change.
 - Add/remove color themes in `scripts/themes.mjs` (must be valid Tailwind
   color names with a full 50–900 scale, e.g. `blue`, `emerald`, `rose`).
-- Edit the JSX layout in `renderApp()` inside `scripts/generate.mjs` to
-  change the page structure itself.
+- Edit the JSX layout in `renderApp()` inside `scripts/site.mjs` to change
+  the page structure itself.
 - New repos are created as **public**; change `private: false` to `true` in
   `scripts/publish.mjs` if you'd rather they be private.

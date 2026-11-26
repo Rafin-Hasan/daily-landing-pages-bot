@@ -35,11 +35,12 @@ jobs:
         if: always()
         run: |
           today=$(date -u +%F)
-          if grep -q "^$today" activity.log 2>/dev/null; then
-            echo "Already recorded $today"
+          # publish.mjs appends a summary line on success; fall back to a bare date line if it didn't.
+          grep -q "^$today" activity.log 2>/dev/null || echo "$today" >> activity.log
+          if git diff --quiet -- activity.log; then
+            echo "Nothing new to record for $today"
             exit 0
           fi
-          echo "$today" >> activity.log
           git add activity.log
           git -c user.name="${{ github.repository_owner }}" \
               -c user.email="${{ github.repository_owner_id }}+${{ github.repository_owner }}@users.noreply.github.com" \
